@@ -1,6 +1,6 @@
 # Veterinary Clinic API
 
-Backend API for managing clients, pets, and employees in a veterinary clinic using Express, Sequelize, and PostgreSQL.
+Backend API for managing clients, pets, employees, vaccines, and medications in a veterinary clinic using Express, Sequelize, and PostgreSQL.
 
 ## Requirements
 
@@ -33,7 +33,13 @@ docker compose up -d
 npm start
 ```
 
-The API initializes database tables automatically on startup.
+5. Run automated tests:
+
+```bash
+npm test
+```
+
+The API runs tracked database migrations automatically on startup.
 
 ## Base URL
 
@@ -91,6 +97,14 @@ Body example:
 
 - `GET /api/pets`
 - `GET /api/pets/:id`
+- `GET /api/pets/:id/vaccines`
+- `POST /api/pets/:id/vaccines`
+- `PUT /api/pets/:id/vaccines/:vaccineId`
+- `DELETE /api/pets/:id/vaccines/:vaccineId`
+- `GET /api/pets/:id/medications`
+- `POST /api/pets/:id/medications`
+- `PUT /api/pets/:id/medications/:medicationId`
+- `DELETE /api/pets/:id/medications/:medicationId`
 - `POST /api/pets`
 - `PUT /api/pets/:id`
 - `DELETE /api/pets/:id`
@@ -103,6 +117,29 @@ Body example:
   "species": "Dog",
   "breed": "Labrador",
   "birth_date": "2022-01-10",
-  "owner_id": 1
+  "client_id": 1
+}
+```
+
+Vaccine body example:
+
+```json
+{
+  "name": "Rabies",
+  "application_date": "2026-03-20",
+  "next_due_date": "2027-03-20",
+  "notes": "Annual booster"
+}
+```
+
+Medication body example:
+
+```json
+{
+  "name": "Amoxicillin",
+  "dosage": "50mg twice daily",
+  "start_date": "2026-03-25",
+  "end_date": "2026-04-01",
+  "notes": "Give after meals"
 }
 ```

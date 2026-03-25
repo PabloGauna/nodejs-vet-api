@@ -1,32 +1,32 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../db/sequelize');
 
-const Pet = sequelize.define(
-  'Pet',
+const PetVaccine = sequelize.define(
+  'PetVaccine',
   {
     id: {
       type: DataTypes.INTEGER,
       autoIncrement: true,
       primaryKey: true,
     },
+    pet_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
     name: {
-      type: DataTypes.STRING(100),
+      type: DataTypes.STRING(150),
       allowNull: false,
     },
-    species: {
-      type: DataTypes.STRING(80),
+    application_date: {
+      type: DataTypes.DATEONLY,
       allowNull: false,
     },
-    breed: {
-      type: DataTypes.STRING(100),
-      allowNull: true,
-    },
-    birth_date: {
+    next_due_date: {
       type: DataTypes.DATEONLY,
       allowNull: true,
     },
-    client_id: {
-      type: DataTypes.INTEGER,
+    notes: {
+      type: DataTypes.TEXT,
       allowNull: true,
     },
     created_at: {
@@ -36,10 +36,10 @@ const Pet = sequelize.define(
     },
   },
   {
-    tableName: 'pets',
+    tableName: 'pet_vaccines',
     createdAt: 'created_at',
     updatedAt: false,
   },
 );
 
-module.exports = Pet;
+module.exports = PetVaccine;

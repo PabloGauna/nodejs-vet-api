@@ -1,4 +1,5 @@
 const express = require('express');
+const validateRequest = require('../middleware/validateRequest');
 const {
   listClients,
   getClientById,
@@ -6,13 +7,17 @@ const {
   updateClient,
   deleteClient,
 } = require('../controllers/clientsController');
+const {
+  clientIdParamValidation,
+  clientBodyValidation,
+} = require('../validators/clientValidators');
 
 const router = express.Router();
 
 router.get('/', listClients);
-router.get('/:id', getClientById);
-router.post('/', createClient);
-router.put('/:id', updateClient);
-router.delete('/:id', deleteClient);
+router.get('/:id', clientIdParamValidation, validateRequest, getClientById);
+router.post('/', clientBodyValidation, validateRequest, createClient);
+router.put('/:id', clientIdParamValidation, clientBodyValidation, validateRequest, updateClient);
+router.delete('/:id', clientIdParamValidation, validateRequest, deleteClient);
 
 module.exports = router;

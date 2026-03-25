@@ -1,17 +1,7 @@
-const express = require('express');
-const apiRoutes = require('./routes/apiRoutes');
+const app = require('./app');
 const { initializeDatabase } = require('./db/initDb');
 
-const app = express();
 const port = process.env.PORT || 3000;
-
-app.use(express.json());
-
-app.get('/health', (req, res) => {
-  res.json({ status: 'ok' });
-});
-
-app.use('/api', apiRoutes);
 
 async function startServer() {
   try {
