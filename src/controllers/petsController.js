@@ -1,31 +1,48 @@
-const pool = require('../db/pool');
+const { Client, Pet } = require('../models');
+
+function serializePet(pet) {
+  const petData = pet.toJSON();
+
+  return {
+    ...petData,
+    owner_name: petData.owner ? petData.owner.full_name : null,
+  };
+}
 
 async function listPets(req, res) {
-  const { rows } = await pool.query(
-    `SELECT pets.*, clients.full_name AS owner_name
-     FROM pets
-     LEFT JOIN clients ON pets.owner_id = clients.id
-     ORDER BY pets.id ASC`,
-  );
+  const pets = await Pet.findAll({
+    include: [
+      {
+        model: Client,
+        as: 'owner',
+        attributes: ['id', 'full_name'],
+        required: false,
+      },
+    ],
+    order: [['id', 'ASC']],
+  });
 
-  res.json(rows);
+  res.json(pets.map(serializePet));
 }
 
 async function getPetById(req, res) {
   const id = Number(req.params.id);
-  const { rows } = await pool.query(
-    `SELECT pets.*, clients.full_name AS owner_name
-     FROM pets
-     LEFT JOIN clients ON pets.owner_id = clients.id
-     WHERE pets.id = $1`,
-    [id],
-  );
+  const pet = await Pet.findByPk(id, {
+    include: [
+      {
+        model: Client,
+        as: 'owner',
+        attributes: ['id', 'full_name'],
+        required: false,
+      },
+    ],
+  });
 
-  if (rows.length === 0) {
+  if (!pet) {
     return res.status(404).json({ error: 'Pet not found' });
   }
 
-  return res.json(rows[0]);
+  return res.json(serializePet(pet));
 }
 
 async function createPet(req, res) {
@@ -41,14 +58,15 @@ async function createPet(req, res) {
     return res.status(400).json({ error: 'name and species are required' });
   }
 
-  const { rows } = await pool.query(
-    `INSERT INTO pets (name, species, breed, birth_date, owner_id)
-     VALUES ($1, $2, $3, $4, $5)
-     RETURNING *`,
-    [name, species, breed || null, birthDate || null, ownerId || null],
-  );
+  const pet = await Pet.create({
+    name,
+    species,
+    breed: breed || null,
+    birth_date: birthDate || null,
+    owner_id: ownerId || null,
+  });
 
-  return res.status(201).json(rows[0]);
+  return res.status(201).json(pet);
 }
 
 async function updatePet(req, res) {
@@ -65,32 +83,32 @@ async function updatePet(req, res) {
     return res.status(400).json({ error: 'name and species are required' });
   }
 
-  const { rows } = await pool.query(
-    `UPDATE pets
-     SET name = $1,
-         species = $2,
-         breed = $3,
-         birth_date = $4,
-         owner_id = $5
-     WHERE id = $6
-     RETURNING *`,
-    [name, species, breed || null, birthDate || null, ownerId || null, id],
-  );
+  const pet = await Pet.findByPk(id);
 
-  if (rows.length === 0) {
+  if (!pet) {
     return res.status(404).json({ error: 'Pet not found' });
   }
 
-  return res.json(rows[0]);
+  await pet.update({
+    name,
+    species,
+    breed: breed || null,
+    birth_date: birthDate || null,
+    owner_id: ownerId || null,
+  });
+
+  return res.json(pet);
 }
 
 async function deletePet(req, res) {
   const id = Number(req.params.id);
-  const { rowCount } = await pool.query('DELETE FROM pets WHERE id = $1', [id]);
+  const pet = await Pet.findByPk(id);
 
-  if (rowCount === 0) {
+  if (!pet) {
     return res.status(404).json({ error: 'Pet not found' });
   }
+
+  await pet.destroy();
 
   return res.status(204).send();
 }

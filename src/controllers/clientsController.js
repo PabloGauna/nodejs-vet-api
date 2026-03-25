@@ -1,19 +1,22 @@
-const pool = require('../db/pool');
+const { Client } = require('../models');
 
 async function listClients(req, res) {
-  const { rows } = await pool.query('SELECT * FROM clients ORDER BY id ASC');
-  res.json(rows);
+  const clients = await Client.findAll({
+    order: [['id', 'ASC']],
+  });
+
+  res.json(clients);
 }
 
 async function getClientById(req, res) {
   const id = Number(req.params.id);
-  const { rows } = await pool.query('SELECT * FROM clients WHERE id = $1', [id]);
+  const client = await Client.findByPk(id);
 
-  if (rows.length === 0) {
+  if (!client) {
     return res.status(404).json({ error: 'Client not found' });
   }
 
-  return res.json(rows[0]);
+  return res.json(client);
 }
 
 async function createClient(req, res) {
@@ -23,14 +26,13 @@ async function createClient(req, res) {
     return res.status(400).json({ error: 'full_name is required' });
   }
 
-  const { rows } = await pool.query(
-    `INSERT INTO clients (full_name, phone, email)
-     VALUES ($1, $2, $3)
-     RETURNING *`,
-    [fullName, phone || null, email || null],
-  );
+  const client = await Client.create({
+    full_name: fullName,
+    phone: phone || null,
+    email: email || null,
+  });
 
-  return res.status(201).json(rows[0]);
+  return res.status(201).json(client);
 }
 
 async function updateClient(req, res) {
@@ -41,28 +43,30 @@ async function updateClient(req, res) {
     return res.status(400).json({ error: 'full_name is required' });
   }
 
-  const { rows } = await pool.query(
-    `UPDATE clients
-     SET full_name = $1, phone = $2, email = $3
-     WHERE id = $4
-     RETURNING *`,
-    [fullName, phone || null, email || null, id],
-  );
+  const client = await Client.findByPk(id);
 
-  if (rows.length === 0) {
+  if (!client) {
     return res.status(404).json({ error: 'Client not found' });
   }
 
-  return res.json(rows[0]);
+  await client.update({
+    full_name: fullName,
+    phone: phone || null,
+    email: email || null,
+  });
+
+  return res.json(client);
 }
 
 async function deleteClient(req, res) {
   const id = Number(req.params.id);
-  const { rowCount } = await pool.query('DELETE FROM clients WHERE id = $1', [id]);
+  const client = await Client.findByPk(id);
 
-  if (rowCount === 0) {
+  if (!client) {
     return res.status(404).json({ error: 'Client not found' });
   }
+
+  await client.destroy();
 
   return res.status(204).send();
 }

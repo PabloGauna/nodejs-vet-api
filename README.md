@@ -1,6 +1,6 @@
 # Veterinary Clinic API
 
-Backend API for managing clients, pets, and employees in a veterinary clinic.
+Backend API for managing clients, pets, and employees in a veterinary clinic using Express, Sequelize, and PostgreSQL.
 
 ## Requirements
 
