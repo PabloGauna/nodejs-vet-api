@@ -2,7 +2,16 @@ const pool = require('./pool');
 
 async function initializeDatabase() {
   await pool.query(`
-    CREATE TABLE IF NOT EXISTS people (
+    DO $$
+    BEGIN
+      IF to_regclass('public.people') IS NOT NULL
+         AND to_regclass('public.clients') IS NULL THEN
+        ALTER TABLE people RENAME TO clients;
+      END IF;
+    END
+    $$;
+
+    CREATE TABLE IF NOT EXISTS clients (
       id SERIAL PRIMARY KEY,
       full_name VARCHAR(150) NOT NULL,
       phone VARCHAR(30),
@@ -26,7 +35,7 @@ async function initializeDatabase() {
       species VARCHAR(80) NOT NULL,
       breed VARCHAR(100),
       birth_date DATE,
-      owner_id INTEGER REFERENCES people(id) ON DELETE SET NULL,
+      owner_id INTEGER REFERENCES clients(id) ON DELETE SET NULL,
       created_at TIMESTAMP NOT NULL DEFAULT NOW()
     );
   `);

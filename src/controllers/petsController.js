@@ -2,9 +2,9 @@ const pool = require('../db/pool');
 
 async function listPets(req, res) {
   const { rows } = await pool.query(
-    `SELECT pets.*, people.full_name AS owner_name
+    `SELECT pets.*, clients.full_name AS owner_name
      FROM pets
-     LEFT JOIN people ON pets.owner_id = people.id
+     LEFT JOIN clients ON pets.owner_id = clients.id
      ORDER BY pets.id ASC`,
   );
 
@@ -14,9 +14,9 @@ async function listPets(req, res) {
 async function getPetById(req, res) {
   const id = Number(req.params.id);
   const { rows } = await pool.query(
-    `SELECT pets.*, people.full_name AS owner_name
+    `SELECT pets.*, clients.full_name AS owner_name
      FROM pets
-     LEFT JOIN people ON pets.owner_id = people.id
+     LEFT JOIN clients ON pets.owner_id = clients.id
      WHERE pets.id = $1`,
     [id],
   );

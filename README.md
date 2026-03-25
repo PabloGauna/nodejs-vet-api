@@ -1,6 +1,6 @@
 # Veterinary Clinic API
 
-Backend API for managing people, pets, and employees in a veterinary clinic.
+Backend API for managing clients, pets, and employees in a veterinary clinic.
 
 ## Requirements
 
@@ -49,13 +49,13 @@ The API initializes database tables automatically on startup.
 
 - `GET /api`
 
-### People
+### Clients
 
-- `GET /api/people`
-- `GET /api/people/:id`
-- `POST /api/people`
-- `PUT /api/people/:id`
-- `DELETE /api/people/:id`
+- `GET /api/clients`
+- `GET /api/clients/:id`
+- `POST /api/clients`
+- `PUT /api/clients/:id`
+- `DELETE /api/clients/:id`
 
 Body example:
 
